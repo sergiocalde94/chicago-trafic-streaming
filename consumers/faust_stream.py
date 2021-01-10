@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 # Faust will ingest records from Kafka in this format
-@dataclass
+@dataclass(frozen=True)
 class Station(faust.Record):
     stop_id: int
     direction_id: str
@@ -24,7 +24,7 @@ class Station(faust.Record):
 
 
 # Faust will produce records to Kafka in this format
-@dataclass
+@dataclass(frozen=True)
 class TransformedStation(faust.Record):
     station_id: int
     station_name: str
@@ -32,12 +32,15 @@ class TransformedStation(faust.Record):
     line: str
 
 
-app = faust.App("stations-stream", broker="kafka://localhost:9092", store="memory://")
-topic = app.topic(f'cta_station_{station_name}', value_type=Station)
-out_topic = app.topic(f'cta_station_{station_name}_output', partitions=1)
+app = faust.App("stations-stream",
+                broker="kafka://localhost:9092",
+                store="memory://")
+
+topic = app.topic('org.chicago.cta.stations', value_type=Station)
+out_topic = app.topic('org.chicago.cta.stations.table.v1', partitions=1)
 
 table = app.Table(
-    f'cta_table_station_{station_name}',
+    'org.chicago.cta.stations.table.v1',
     default=TransformedStation,
     partitions=1,
     changelog_topic=out_topic
@@ -53,7 +56,7 @@ async def process_station(stations):
 
         table[station.station_id] = TransformedStation(
             station_id=station.station_id,
-            station_name=station.station_name,
+            station_name=station.name,
             order=station.order,
             line=color
         )

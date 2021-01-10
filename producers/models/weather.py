@@ -5,13 +5,12 @@ import logging
 from pathlib import Path
 import random
 import urllib.parse
-
 import requests
 
 from models.producer import Producer
 
 
-TOPIC_NAME = f'chicago_{weather}'
+TOPIC_NAME = 'org.chicago.cta.weather.v1'
 
 logger = logging.getLogger(__name__)
 
@@ -41,11 +40,11 @@ class Weather(Producer):
         )
 
         self.status = Weather.status.sunny
-        self.temp = 70.0
+        self.temperature = 70.0
         if month in Weather.winter_months:
-            self.temp = 40.0
+            self.temperature = 40.0
         elif month in Weather.summer_months:
-            self.temp = 85.0
+            self.temperature = 85.0
 
         if Weather.key_schema is None:
             with open(f"{Path(__file__).parents[0]}/schemas/weather_key.json") as f:
@@ -62,16 +61,15 @@ class Weather(Producer):
             mode = -1.0
         elif month in Weather.summer_months:
             mode = 1.0
-        self.temp += min(max(-20.0, random.triangular(-10.0, 10.0, mode)), 100.0)
+        self.temperature += min(max(-20.0, random.triangular(-10.0, 10.0, mode)), 100.0)
         self.status = random.choice(list(Weather.status))
 
     def run(self, month):
         self._set_weather(month)
 
-        logger.info("weather kafka proxy integration incomplete - skipping")
         resp = requests.post(
             f"{Weather.rest_proxy_url}/topics/{TOPIC_NAME}",
-            headers={"Content-Type": "application/vnd.kafka.avro.v2 json"},
+            headers={"Content-Type": "application/vnd.kafka.avro.v2+json"},
             data=json.dumps(
                 {
                     "key_schema": json.dumps(Weather.key_schema),
@@ -79,7 +77,7 @@ class Weather(Producer):
                     "records": [
                         {
                             "key": {"timestamp": self.time_millis()},
-                            "value": {"temperature": self.temp,
+                            "value": {"temperature": self.temperature,
                                       "status": self.status},
                         }
                     ],
@@ -91,6 +89,6 @@ class Weather(Producer):
 
         logger.debug(
             "sent weather data to kafka, temp: %s, status: %s",
-            self.temp,
+            self.temperature,
             self.status.name,
         )

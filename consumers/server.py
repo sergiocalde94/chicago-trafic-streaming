@@ -8,6 +8,8 @@ import tornado.template
 import tornado.web
 
 
+APPLICATION_PORT = 8889
+
 # Import logging before models to ensure configuration is picked up
 logging.config.fileConfig(f"{Path(__file__).parents[0]}/logging.ini")
 
@@ -58,7 +60,7 @@ def run_server():
     application = tornado.web.Application(
         [(r"/", MainHandler, {"weather": weather_model, "lines": lines})]
     )
-    application.listen(8888)
+    application.listen(APPLICATION_PORT)
 
     # Build kafka consumers
     consumers = [
@@ -94,7 +96,7 @@ def run_server():
             tornado.ioloop.IOLoop.current().spawn_callback(consumer.consume)
 
         tornado.ioloop.IOLoop.current().start()
-    except KeyboardInterrupt as e:
+    except KeyboardInterrupt:
         logger.info("shutting down server")
         tornado.ioloop.IOLoop.current().stop()
         for consumer in consumers:

@@ -8,6 +8,8 @@ from models import Turnstile
 from models.producer import Producer
 
 
+TOPIC_NAME = 'org.chicago.cta.station.arrivals'
+
 logger = logging.getLogger(__name__)
 
 
@@ -27,7 +29,7 @@ class Station(Producer):
                  color, direction_a=None,
                  direction_b=None):
         self.name = name
-        station_name = (
+        self.station_descriptive_name = (
             self.name.lower()
             .replace("/", "_and_")
             .replace(" ", "_")
@@ -35,9 +37,8 @@ class Station(Producer):
             .replace("'", "")
         )
 
-        topic_name = f'cta_station_{station_name}'
         super().__init__(
-            topic_name,
+            TOPIC_NAME,
             key_schema=Station.key_schema,
             value_schema=Station.value_schema,
             num_partitions=2,
@@ -45,9 +46,9 @@ class Station(Producer):
         )
 
         self.station_id = int(station_id)
-        self.color = color
         self.dir_a = direction_a
         self.dir_b = direction_b
+        self.color = color
         self.a_train = None
         self.b_train = None
         self.turnstile = Turnstile(self)
@@ -61,12 +62,13 @@ class Station(Producer):
                 "station_id": self.station_id,
                 "train_id": train.train_id,
                 "direction": direction,
-                "line":  self.color,
+                "line":  self.color.name,
                 "train_status": train.status,
                 "prev_station_id": prev_station_id,
                 "prev_direction": prev_direction,
             },
         )
+        logger.info(f'Train arrivals at the station {self.name}!')
 
     def __str__(self):
         return "Station | {:^5} | {:<30} | Direction A: | {:^5} | departing to {:<30} | Direction B: | {:^5} | departing to {:<30} | ".format(

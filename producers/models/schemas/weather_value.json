@@ -1,9 +1,9 @@
 {
-  "namespace": "scalderp.udacity",
    "type": "record",
+   "namespace": "com.udacity",
    "name": "weather.value",
    "fields": [
-       {"name": "temperature", "type": "string"},
-       {"name": "status", "type": "string"}
+       {"name": "temperature", "type": "float"},
+       {"name": "status", "type": "int"}
     ]
  }

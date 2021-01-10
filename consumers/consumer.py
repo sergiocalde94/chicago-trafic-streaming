@@ -9,7 +9,6 @@ from tornado import gen
 
 
 BROKER_URL = 'PLAINTEXT://localhost:9092'
-SCHEMA_REGISTRY = 'http://localhost:8081'
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +40,6 @@ class KafkaConsumer:
         #
         self.broker_properties = {
             'bootstrap.servers': BROKER_URL,
-            'schema_registry': SCHEMA_REGISTRY,
             "group.id": f"{topic_name_pattern}"
         }
 

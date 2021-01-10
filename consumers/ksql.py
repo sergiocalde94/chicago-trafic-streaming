@@ -10,7 +10,7 @@ import topic_check
 logger = logging.getLogger(__name__)
 
 
-KSQL_URL = "http://localhost:8088"
+KSQL_URL = "http://localhost:8088/ksql"
 
 KSQL_STATEMENT = """
     CREATE TABLE turnstile (
@@ -18,7 +18,7 @@ KSQL_STATEMENT = """
         station_name VARCHAR,
         line VARCHAR
     ) WITH (
-        kafka_topic='cta_turnstiles',
+        kafka_topic='org.chicago.cta.turnstiles',
         value_format='avro',
         key='station_id'
     );
@@ -40,12 +40,16 @@ def execute_statement():
     logging.debug("executing ksql statement...")
 
     resp = requests.post(
-        f"{KSQL_URL}/ksql",
-        headers={"Content-Type": "application/vnd.ksql.v1+json"},
+        KSQL_URL,
+        headers={
+            "Content-Type": "application/vnd.ksql.v1+json; charset=utf-8",
+            "Accept": "application/vnd.ksql.v1+json"
+        },
         data=json.dumps(
             {
                 "ksql": KSQL_STATEMENT,
-                "streamsProperties": {"ksql.streams.auto.offset.reset": "earliest"},
+                "streamsProperties":
+                    {"ksql.streams.auto.offset.reset": "earliest"}
             }
         ),
     )

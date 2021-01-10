@@ -16,7 +16,10 @@ class Producer:
     """Defines and provides common functionality amongst Producers"""
 
     # Tracks existing topics across all Producer instances
-    existing_topics = set([])
+    existing_topics = set([
+        # 'cta_turnstiles',
+        # 'cta_station'
+    ])
 
     def __init__(
         self,
@@ -35,7 +38,7 @@ class Producer:
 
         self.broker_properties = {
             'bootstrap.servers': BROKER_URL,
-            'schema_registry': SCHEMA_REGISTRY
+            'schema.registry.url': SCHEMA_REGISTRY
         }
 
         # If the topic does not already exist, try to create it
@@ -52,7 +55,7 @@ class Producer:
     def create_topic(self):
         """Creates the producer topic if it does not already exist"""
         client = AdminClient({'bootstrap.servers': BROKER_URL})
-
+        print(self.topic_name)
         topic = NewTopic(self.topic_name,
                          num_partitions=1,
                          replication_factor=1)
@@ -62,9 +65,9 @@ class Producer:
         for topic, f in fs.items():
             try:
                 f.result()
-                print("Topic {} created".format(topic))
+                logger.info(f'Topic {topic} created')
             except Exception as e:
-                print("Failed to create topic {}: {}".format(topic, e))
+                logger.error(f'Failed to create topic {topic}: {e}')
 
     def close(self):
         """Prepares the producer for exit by cleaning up the producer"""

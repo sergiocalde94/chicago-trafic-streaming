@@ -39,7 +39,7 @@ def configure_connector():
                 "table.whitelist": "stations",
                 "mode": "incrementing",
                 "incrementing.column.name": "stop_id",
-                "topic.prefix": "cta.",
+                "topic.prefix": "org.chicago.cta",
                 "poll.interval.ms": "10"
             }
         }),
