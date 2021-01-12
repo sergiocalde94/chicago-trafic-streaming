@@ -36,10 +36,10 @@ def configure_connector():
                 "connection.url": "jdbc:postgresql://localhost:5432/cta",
                 "connection.user": "cta_admin",
                 "connection.password": "chicago",
-                "table.whitelist": "stations",
+                "table.whitelist": CONNECTOR_NAME,
                 "mode": "incrementing",
                 "incrementing.column.name": "stop_id",
-                "topic.prefix": "org.chicago.cta",
+                "topic.prefix": "org.chicago.cta.",
                 "poll.interval.ms": "10"
             }
         }),

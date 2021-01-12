@@ -32,15 +32,10 @@ class KafkaConsumer:
         self.consume_timeout = consume_timeout
         self.offset_earliest = offset_earliest
 
-        #
-        #
-        # TODO: Configure the broker properties below. Make sure to reference the project README
-        # and use the Host URL for Kafka and Schema Registry!
-        #
-        #
         self.broker_properties = {
             'bootstrap.servers': BROKER_URL,
-            "group.id": f"{topic_name_pattern}"
+            "group.id": f'{topic_name_pattern}',
+            'auto.offset.reset': 'earliest'
         }
 
         if is_avro is True:
@@ -59,7 +54,7 @@ class KafkaConsumer:
                 if self.offset_earliest is True:
                     partition.offset = confluent_kafka.OFFSET_BEGINNING
         except Exception as e:
-            logger.info(f"on_assign is incomplete: {e} - skipping")
+            logger.info(f"on_assign is incomplete: {e}")
 
         logger.info("partitions assigned for %s", self.topic_name_pattern)
         consumer.assign(partitions)
@@ -82,7 +77,7 @@ class KafkaConsumer:
                 logger.debug("no message")
                 return 0
             elif message.error() is not None:
-                logger.info("_consume is incomplete - skipping")
+                logger.info("_consume is incomplete")
                 return 0
             else:
                 self.message_handler(message)

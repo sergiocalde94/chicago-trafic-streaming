@@ -38,7 +38,8 @@ class Producer:
 
         self.broker_properties = {
             'bootstrap.servers': BROKER_URL,
-            'schema.registry.url': SCHEMA_REGISTRY
+            'schema.registry.url': SCHEMA_REGISTRY,
+            "group.id": topic_name,
         }
 
         # If the topic does not already exist, try to create it

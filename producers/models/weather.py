@@ -4,7 +4,6 @@ import json
 import logging
 from pathlib import Path
 import random
-import urllib.parse
 import requests
 
 from models.producer import Producer
@@ -78,7 +77,7 @@ class Weather(Producer):
                         {
                             "key": {"timestamp": self.time_millis()},
                             "value": {"temperature": self.temperature,
-                                      "status": self.status},
+                                      "status": self.status.name},
                         }
                     ],
                 }
